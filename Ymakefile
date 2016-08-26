@@ -13,3 +13,9 @@ blocks:
       - "$1.go"
       - "ymakefile/*.go"
     cmd: go install -ldflags "-X main.VERSION={version}" github.com/nananas/$1 
+
+  test:
+    target: always
+    deps: '*'
+    cmd: echo {DEPS}
+    hide: Yes

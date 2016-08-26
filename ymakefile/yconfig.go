@@ -34,7 +34,7 @@ type YBlock struct {
 	Pattern string ",omitempty"
 	// options
 	// Parallel bool ",omitempty"
-	// Hide     bool ",omitempty"
+	Hide bool ",omitempty"
 }
 
 // Either blocks are either:
@@ -113,6 +113,7 @@ func LoadConfig(reader io.Reader) (*YMakefile, *Variables) {
 	//
 	err = yaml.Unmarshal(bytes, &config)
 	if err != nil {
+		Print("[E] makefile error!")
 		log.Fatal(err)
 	}
 

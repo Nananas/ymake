@@ -82,6 +82,12 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (boo
 		block = ymakefile.Blocks.Others[blockname]
 	} else {
 		block = ymakefile.Blocks.Default
+
+	}
+
+	if block == nil {
+		Print("[E] No block found with name '" + blockname + "'")
+		return false, nil
 	}
 
 	Print("[B] " + blockname)
@@ -153,6 +159,8 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (boo
 				return true, errors.New("Dependency error")
 			}
 
+			(*variables)["DEPS"] = strings.Join(deps_files, " ")
+
 			target := Vars(Patterns(block.Target, p.List), variables)
 			stat, err := os.Stat(target)
 			if err != nil {
@@ -186,7 +194,9 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (boo
 			} else {
 				HandleEither(block.Cmd, func(cmd string) bool {
 					cmd = Vars(Patterns(cmd, p.List), variables)
-					Print("[>] " + cmd)
+					if !block.Hide {
+						Print("[>] " + cmd)
+					}
 					err := ExecuteStd(cmd)
 					if err != nil {
 						return false

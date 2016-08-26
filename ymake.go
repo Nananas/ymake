@@ -12,6 +12,7 @@ import (
 var VERSION string
 
 func main() {
+
 	if contains(os.Args, "-V", "--version") {
 		fmt.Println("Ymake version v" + VERSION)
 		return
