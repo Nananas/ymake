@@ -74,3 +74,7 @@ deps: [foo, bar]
 Each `$1-$0` in `deps`, `target` and `cmd` will be replaced by the corresponding capture (`(...)`) from `pattern`.
 A `$0` will be replaced by a list off all captures, joined by spaces.
 
+
+# TODO
+
+[o] error handling

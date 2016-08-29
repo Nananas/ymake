@@ -68,7 +68,9 @@ func createRegex(s string) *regexp.Regexp {
 }
 
 // Runs a block with blockname
-// returns false if something happend
+// returns false if the block does not exist
+// returns error if something happend before execution
+// execution errors through stderr are not returned
 //
 func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (bool, error) {
 
@@ -192,18 +194,21 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (boo
 			if block.Cmd == nil {
 
 			} else {
-				HandleEither(block.Cmd, func(cmd string) bool {
+				if !HandleEither(block.Cmd, func(cmd string) bool {
 					cmd = Vars(Patterns(cmd, p.List), variables)
 					if !block.Hide {
 						Print("[>] " + cmd)
 					}
 					err := ExecuteStd(cmd)
 					if err != nil {
+						Print("[<] " + err.Error())
 						return false
 					}
 
 					return true
-				})
+				}) {
+					return true, nil
+				}
 			}
 
 		}

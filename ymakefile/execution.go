@@ -28,6 +28,10 @@ func ExecuteCapture(command string) (string, error) {
 	cmd := exec.Command("/bin/sh", "-c", command)
 
 	b, err := cmd.CombinedOutput()
+	if err != nil {
+		return string(b), err
+	}
+
 	r := string(b)
 
 	// trim whitespace
