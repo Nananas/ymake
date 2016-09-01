@@ -207,7 +207,7 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (boo
 
 					return true
 				}) {
-					return true, nil
+					return true, errors.New("Stop.")
 				}
 			}
 
@@ -223,7 +223,7 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (boo
 				return false
 			}
 			if err != nil {
-				log.Fatal(err)
+				log.Println("\t--- " + err.Error())
 				return false
 			}
 
