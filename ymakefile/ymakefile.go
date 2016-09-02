@@ -199,7 +199,10 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (boo
 					if !block.Hide {
 						Print("[>] " + cmd)
 					}
-					err := ExecuteStd(cmd)
+
+					stdin := block.Stdin
+
+					err := ExecuteStd(cmd, stdin)
 					if err != nil {
 						Print("[<] " + err.Error())
 						return false

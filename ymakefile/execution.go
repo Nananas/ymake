@@ -8,11 +8,15 @@ import (
 
 // Execution to stdout and stderr
 //
-func ExecuteStd(command string) error {
+func ExecuteStd(command string, stdin string) error {
 	cmd := exec.Command("/bin/sh", "-c", command)
 
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
+
+	if stdin != "" {
+		cmd.Stdin = strings.NewReader(stdin + "\n")
+	}
 
 	err := cmd.Run()
 	if err != nil {

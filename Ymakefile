@@ -2,7 +2,7 @@
 
 variables:
   gopath: echo $GOPATH
-  version: echo 0.2
+  version: echo 0.3
 
 blocks:
   # Build

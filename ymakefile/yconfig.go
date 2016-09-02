@@ -32,6 +32,7 @@ type YBlock struct {
 	// Exclude Either ",omitempty"
 	Deps    Either ",omitempty"
 	Pattern string ",omitempty"
+	Stdin   string ",omitempty"
 	// options
 	// Parallel bool ",omitempty"
 	Hide bool ",omitempty"
