@@ -19,3 +19,6 @@ blocks:
     deps: '*'
     cmd: echo {DEPS}
     hide: Yes
+
+  release:
+    cmd: go build -ldflags "-s -X main.VERSION={version}" ymake.go
