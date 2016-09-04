@@ -13,6 +13,7 @@ func ExecuteStd(command string, stdin string) error {
 
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
 
 	if stdin != "" {
 		cmd.Stdin = strings.NewReader(stdin + "\n")
@@ -30,6 +31,7 @@ func ExecuteStd(command string, stdin string) error {
 //
 func ExecuteCapture(command string) (string, error) {
 	cmd := exec.Command("/bin/sh", "-c", command)
+	cmd.Stdin = os.Stdin
 
 	b, err := cmd.CombinedOutput()
 	if err != nil {
