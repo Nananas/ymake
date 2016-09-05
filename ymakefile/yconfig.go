@@ -114,7 +114,7 @@ func LoadConfig(reader io.Reader) (*YMakefile, *Variables) {
 	//
 	err = yaml.Unmarshal(bytes, &config)
 	if err != nil {
-		Print("[E] makefile error!")
+		Error("[E] makefile error!")
 		log.Fatal(err)
 	}
 
@@ -143,7 +143,7 @@ func LoadConfig(reader io.Reader) (*YMakefile, *Variables) {
 			variables[k] = output
 
 			// fmt.Print("\t)
-			Print("[V] " + k + ": " + output)
+			PrintVariable(k + ": " + output)
 		default:
 			log.Fatal("Variable " + k + " is not a string")
 		}

@@ -2,7 +2,6 @@ package ymakefile
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -71,8 +70,9 @@ func createRegex(s string) *regexp.Regexp {
 // returns false if the block does not exist
 // returns error if something happend before execution
 // execution errors through stderr are not returned
+// intent handles the indention of this block as subblock to a parent
 //
-func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (bool, error) {
+func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables, indent int) (bool, error) {
 
 	var block *YBlock
 
@@ -88,11 +88,11 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (boo
 	}
 
 	if block == nil {
-		Print("[E] No block found with name '" + blockname + "'")
+		Error("[E] No block found with name '" + blockname + "'")
 		return false, nil
 	}
 
-	Print("[B] " + blockname)
+	PrintBlock(blockname, indent)
 
 	patterns := make([]Pattern, 0)
 
@@ -197,14 +197,14 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (boo
 				if !HandleEither(block.Cmd, func(cmd string) bool {
 					cmd = Vars(Patterns(cmd, p.List), variables)
 					if !block.Hide {
-						Print("[>] " + cmd)
+						PrintCmd(cmd, indent)
 					}
 
 					stdin := block.Stdin
 
 					err := ExecuteStd(cmd, stdin)
 					if err != nil {
-						Print("[<] " + err.Error())
+						ErrorCmd(err.Error(), indent)
 						return false
 					}
 
@@ -220,13 +220,13 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables) (boo
 
 	if block.Post != nil {
 		HandleEither(block.Post, func(s string) bool {
-			exists, err := RunBlock(s, ymakefile, variables)
+			exists, err := RunBlock(s, ymakefile, variables, indent+1)
 			if !exists {
-				fmt.Println("No block found called " + s)
+				Error("No block found called " + s)
 				return false
 			}
 			if err != nil {
-				log.Println("\t--- " + err.Error())
+				PrintInfo(err.Error(), indent)
 				return false
 			}
 

@@ -9,6 +9,11 @@ import (
 // Execution to stdout and stderr
 //
 func ExecuteStd(command string, stdin string) error {
+
+	if PRINTONLY {
+		return nil
+	}
+
 	cmd := exec.Command("/bin/sh", "-c", command)
 
 	cmd.Stderr = os.Stderr
