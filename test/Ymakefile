@@ -1,0 +1,12 @@
+blocks:
+  default:
+    post:
+      - parallel
+      
+  parallel:
+    cmd: 
+      - echo 1
+      - sleep 1 && echo 2
+      - sleep 2 && echo 3
+      - echo 4
+    parallel: yes

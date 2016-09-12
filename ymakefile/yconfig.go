@@ -17,6 +17,7 @@ type YMakefile struct {
 
 	Options struct {
 		// Cores int ",omitempty"
+		Shell string ",omitempty"
 	}
 
 	Variables struct {
@@ -34,8 +35,8 @@ type YBlock struct {
 	Pattern string ",omitempty"
 	Stdin   string ",omitempty"
 	// options
-	// Parallel bool ",omitempty"
-	Hide bool ",omitempty"
+	Parallel bool ",omitempty"
+	Hide     bool ",omitempty"
 }
 
 // Either blocks are either:
@@ -93,7 +94,7 @@ func HandleEither(either Either, action EitherAction) bool {
 
 // Load ymakefile from reader
 //
-func LoadConfig(reader io.Reader) (*YMakefile, *Variables) {
+func LoadConfig(reader io.Reader) (*YMakefile, *Variables, string) {
 
 	if DEBUG {
 		log.SetFlags(log.Lshortfile)
@@ -118,11 +119,15 @@ func LoadConfig(reader io.Reader) (*YMakefile, *Variables) {
 		log.Fatal(err)
 	}
 
+	// parse options
+	//
+	shell := config.Options.Shell
+
 	// parse variables
 	//
 	variables := make(Variables, len(config.Variables.V)+len(DEFAULT_VARIABLES))
 	for i, e := range DEFAULT_VARIABLES {
-		output, err := ExecuteCapture(DEFAULT_VARIABLE_COMMANDS[i])
+		output, err := ExecuteCapture(DEFAULT_VARIABLE_COMMANDS[i], shell)
 		if err != nil {
 			log.Fatal(output, err)
 		}
@@ -135,7 +140,7 @@ func LoadConfig(reader io.Reader) (*YMakefile, *Variables) {
 		switch cmd := v.(type) {
 		case string:
 
-			output, err := ExecuteCapture(cmd)
+			output, err := ExecuteCapture(cmd, shell)
 			if err != nil {
 				log.Fatal(output, err)
 			}
@@ -149,5 +154,5 @@ func LoadConfig(reader io.Reader) (*YMakefile, *Variables) {
 		}
 	}
 
-	return &config, &variables
+	return &config, &variables, shell
 }

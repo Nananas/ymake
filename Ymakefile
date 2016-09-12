@@ -16,3 +16,7 @@ blocks:
 
   release:
     cmd: go build -ldflags "-s -X main.VERSION={version}" ymake.go
+
+  test:
+    cmd: cd test && ymake
+

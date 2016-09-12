@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -72,7 +73,7 @@ func createRegex(s string) *regexp.Regexp {
 // execution errors through stderr are not returned
 // intent handles the indention of this block as subblock to a parent
 //
-func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables, indent int) (bool, error) {
+func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables, shell string, indent int) (bool, error) {
 
 	var block *YBlock
 
@@ -191,27 +192,95 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables, inde
 
 		if shouldRun || FORCE {
 
-			if block.Cmd == nil {
+			if block.Parallel {
+				// PARALLEL
+				//
+
+				errorchan := make(chan error, 1)
+				if block.Cmd == nil {
+
+				} else {
+					switch t := block.Cmd.(type) {
+					case string:
+						return true, errors.New("Stop. Expected multiple commands when running parallel!")
+					case []interface{}:
+						// channel of at least the size of all possible commands
+						//
+						donechan := make(chan bool, len(t))
+
+						// keeps track of how many commands there actually are
+						// ignoring empty strings etc.
+						//
+						cmdcount := 0
+
+						for _, e := range t {
+
+							if e == nil || reflect.TypeOf(e).Kind() != reflect.String {
+								continue
+							}
+
+							cmdcount++
+
+							s := e.(string)
+
+							cmd := Vars(Patterns(s, p.List), variables)
+							if !block.Hide {
+								PrintCmd(cmd, indent)
+							}
+
+							stdin := block.Stdin
+
+							// execute command in parallel
+							//
+							ExecuteStdParallel(cmd, stdin, shell, errorchan, donechan)
+						}
+
+						// check if all child processes are completed
+						//
+						for i := 0; i < cmdcount; i++ {
+							<-donechan
+						}
+
+						// check if an error occured
+						//
+						select {
+						case err := <-errorchan:
+							ErrorCmd(err.Error(), indent)
+							return true, err
+						default:
+							// nothing bad happend
+						}
+					default:
+						return false, errors.New("This case should not happen")
+					}
+				}
 
 			} else {
-				if !HandleEither(block.Cmd, func(cmd string) bool {
-					cmd = Vars(Patterns(cmd, p.List), variables)
-					if !block.Hide {
-						PrintCmd(cmd, indent)
+				// SEQUENTIAL
+				//
+				if block.Cmd == nil {
+
+				} else {
+					if !HandleEither(block.Cmd, func(cmd string) bool {
+						cmd = Vars(Patterns(cmd, p.List), variables)
+						if !block.Hide {
+							PrintCmd(cmd, indent)
+						}
+
+						stdin := block.Stdin
+
+						err := ExecuteStd(cmd, stdin, shell)
+						if err != nil {
+							ErrorCmd(err.Error(), indent)
+							return false
+						}
+
+						return true
+					}) {
+						return true, errors.New("Stop.")
 					}
-
-					stdin := block.Stdin
-
-					err := ExecuteStd(cmd, stdin)
-					if err != nil {
-						ErrorCmd(err.Error(), indent)
-						return false
-					}
-
-					return true
-				}) {
-					return true, errors.New("Stop.")
 				}
+
 			}
 
 		}
@@ -220,7 +289,7 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables, inde
 
 	if block.Post != nil {
 		HandleEither(block.Post, func(s string) bool {
-			exists, err := RunBlock(s, ymakefile, variables, indent+1)
+			exists, err := RunBlock(s, ymakefile, variables, shell, indent+1)
 			if !exists {
 				Error("No block found called " + s)
 				return false

@@ -60,14 +60,16 @@ func main() {
 
 	var YMAKE *YMakefile
 	var VARIABLES *Variables
-	YMAKE, VARIABLES = LoadConfig(f)
+	var SHELL string
+
+	YMAKE, VARIABLES, SHELL = LoadConfig(f)
 
 	containsBlockName := false
 
 	for _, a := range flag.Args()[0:] {
 		if a[0] != '-' {
 			containsBlockName = true
-			exists, err := RunBlock(flag.Args()[0], YMAKE, VARIABLES, 0)
+			exists, err := RunBlock(flag.Args()[0], YMAKE, VARIABLES, SHELL, 0)
 			if !exists {
 				Error("No block found called " + flag.Args()[0])
 			}
@@ -78,7 +80,7 @@ func main() {
 	}
 
 	if !containsBlockName {
-		_, err := RunBlock("default", YMAKE, VARIABLES, 0)
+		_, err := RunBlock("default", YMAKE, VARIABLES, SHELL, 0)
 		if err != nil {
 			log.Fatal(err)
 		}
