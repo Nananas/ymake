@@ -2,7 +2,7 @@
 
 variables:
   gopath: echo $GOPATH
-  version: echo 0.3
+  version: echo 0.4
 
 blocks:
   # Build
@@ -15,8 +15,15 @@ blocks:
     cmd: go install -ldflags "-X main.VERSION={version}" github.com/nananas/$1 
 
   release:
-    cmd: go build -ldflags "-s -X main.VERSION={version}" ymake.go
+    cmd:
+      - go build -ldflags "-s -X main.VERSION={version}" ymake.go
+      - echo "Now copy the ymake executable"
+    hide: yes
 
   test:
     cmd: cd test && ymake
+
+  package:
+    post: release
+
 

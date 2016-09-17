@@ -26,14 +26,13 @@ type YMakefile struct {
 }
 
 type YBlock struct {
-	Cmd Either
-	// Pre     Either ",omitempty"
-	Post   Either ",omitempty"
-	Target string ",omitempty"
-	// Exclude Either ",omitempty"
+	Cmd     Either
+	Post    Either ",omitempty"
+	Target  string ",omitempty"
 	Deps    Either ",omitempty"
 	Pattern string ",omitempty"
 	Stdin   string ",omitempty"
+
 	// options
 	Parallel bool ",omitempty"
 	Hide     bool ",omitempty"

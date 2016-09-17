@@ -195,7 +195,6 @@ func RunBlock(blockname string, ymakefile *YMakefile, variables *Variables, shel
 			if block.Parallel {
 				// PARALLEL
 				//
-
 				errorchan := make(chan error, 1)
 				if block.Cmd == nil {
 

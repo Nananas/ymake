@@ -144,7 +144,7 @@ func printHelp() {
 	ct.ResetColor()
 	fmt.Println(`
 		is the name of any block specified under 'targets'.
-		When ommitted, the \e[0;34mdefault" block will be executed.
+		When ommitted, the "default" block will be executed.
 `)
 
 }

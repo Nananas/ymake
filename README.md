@@ -1,6 +1,6 @@
 # Ymake
 
-Ymake is a build tool analog to GNU make. Instead of using makefiles, ymake reads from a `Ymakefile`, written in [YAML](https://en.wikipedia.org/wiki/YAML).
+Ymake is a build tool analog to GNU make. Instead of using makefiles, ymake reads from a `Ymakefile` written in [YAML](https://en.wikipedia.org/wiki/YAML).
 
 ## Command line 
 Command line usage is as follows:
@@ -59,16 +59,20 @@ A block can contain the following:
 - `deps` <Either>: dependency files. Needs `target`. (Can contain $)
 - `target` <string>: file to check deps against. If it does not exist or a deps file is newer, the command will be executed. (Can contain $)
 - `post` <Either>: any block names to run after this block.
+- `parallel` <bool>: if multiple commands are specified, the parallel option enables parallel execution of commands. All parallel commands will be killed if one exits with an error. (Parallel jobs for the pattern matching is in the TODO.)
 
 
 Where <Either> is either a string or a list of strings:
 ```
-# All viable:
-deps: foobar
-deps:
+# A string
+...: foobar
+# A list of strings, v1
+...:
 	- foo
 	- bar
-deps: [foo, bar]
+
+# A list of strings, v2
+...: [foo, bar]
 ```
 
 Each `$1-$0` in `deps`, `target` and `cmd` will be replaced by the corresponding capture (`(...)`) from `pattern`.
@@ -77,4 +81,6 @@ A `$0` will be replaced by a list off all captures, joined by spaces.
 
 # TODO
 
-[o] error handling
+[x] error handling
+[ ] Cpp dependency example
+[ ] Parallel for pattern
